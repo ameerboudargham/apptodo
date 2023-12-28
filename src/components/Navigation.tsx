@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useTodoStore } from '../store/Todo';
 
 function Navigation() {
   const addTodo = useTodoStore((state) => state.addTodo);
-
+  const {searchTodos} = useTodoStore()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTodo, setNewTodo] = useState({
     title: '',
     date: '',
-    priority: 1, // Default priority
+    priority: 1, 
     content: '',
     completed:false,
   });
@@ -34,20 +34,30 @@ function Navigation() {
     setNewTodo((prevTodo) => ({
       ...prevTodo,
       [name]: value,
+
     }));
   };
 
   const handleSubmit = () => {
-    // You might want to add some validation here before adding the todo
+
+    if (!newTodo.title || !newTodo.date || !newTodo.content) {
+      alert('Please fill in all required fields (Title, Date, Content).');
+      return;
+    }
     addTodo({
       ...newTodo,
-      id: new Date().getTime(), // Unique ID, you might want to use a better method for generating IDs
-      completed: false, // Assuming completed should be set to false by default
+      id: new Date().getTime(), 
+      completed: false, 
+      date: `${newTodo.date} Day${newTodo.date === "1" ? '' : 's'}`
     });
     
-    // Close the modal after submitting
+    
     closeModal();
   };
+  function handleSearch(e:any){
+    const searchTerm = e.target.value;
+    searchTodos(searchTerm);
+  }
   
 
   return (
@@ -56,7 +66,7 @@ function Navigation() {
         <h1 onClick={openModal} className='cursor-pointer text-5xl'>+</h1>
       </div>
       <div className="search w-3/4">
-        <input className='p-4 w-full rounded-2xl indent-3' type="text" placeholder='Search...' />
+        <input className='p-4 w-full rounded-2xl indent-3' type="text" placeholder='Search...' onChange={handleSearch} />
       </div>
 
       {/* Modal */}
@@ -72,14 +82,17 @@ function Navigation() {
               onChange={handleInputChange}
               className="border p-2 mb-4 w-full"
             />
-            <label>Date:</label>
+            <label>Please enter how many days left for the task:</label>
             <input
-              type="text"
+              type="number"
               name="date"
               value={newTodo.date}
               onChange={handleInputChange}
               className="border p-2 mb-4 w-full"
+              min={1}
+              max={30}
             />
+            
             <label>Priority:</label>
             <input
               type="number"
