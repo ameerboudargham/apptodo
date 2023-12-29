@@ -19,6 +19,8 @@ interface TodoStore {
   sortTodosAsc: () => void; 
   sortTodosDesc: () => void; 
   searchTodos: (searchTerm: string) => void;
+  sortDoAsc: Function;
+  sortDoDesc:Function;
 }
 
 export const useTodoStore = create<TodoStore>(
@@ -91,6 +93,15 @@ export const useTodoStore = create<TodoStore>(
     const sortedTodos = [...state.todos].sort((a, b) => b.priority - a.priority);
     return { todos: sortedTodos, done: state.done };
   }),
+  sortDoAsc: (): void => set((state) => {
+    const sortedTodos = [...state.done].sort((a, b) => a.priority - b.priority);
+    return { done: sortedTodos, todos: state.todos };
+  }),
+  sortDoDesc: (): void => set((state) => {
+    const sortedTodos = [...state.done].sort((a, b) => b.priority - a.priority);
+    return { done: sortedTodos, todos: state.todos };
+  }),
+  
   searchTodos: (searchTerm: string) => set((state) => {
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
 
@@ -99,6 +110,7 @@ export const useTodoStore = create<TodoStore>(
       return state;
     }
 
+    
     const filteredTodos = state.todos.filter((todo) =>
       todo.title.toLowerCase().includes(normalizedSearchTerm) ||
       todo.content.toLowerCase().includes(normalizedSearchTerm)

@@ -7,6 +7,7 @@ function Done({ note }: { note: any }): JSX.Element {
     deleteTodo(note.id);
   }
   return (
+      
     <div className="w-full flex flex-row gap-5 bg-gray-700 p-4 rounded-3xl my-3 justify-between">
       
       <div className="mainPart">
