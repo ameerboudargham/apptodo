@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
 type Todo = {
   id: number;
   title: string;
@@ -101,30 +101,24 @@ export const useTodoStore = create<TodoStore>(
     const sortedTodos = [...state.done].sort((a, b) => b.priority - a.priority);
     return { done: sortedTodos, todos: state.todos };
   }),
-  
   searchTodos: (searchTerm: string) => set((state) => {
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-
+  
+    // If the search term is empty, revert to the original state
     if (normalizedSearchTerm === '') {
-      // If the search term is empty, show all todos
-      return state;
+      return { ...state, filteredTodos: state.todos, isSearchActive: false };
     }
-
-    
+  
+    // Perform the search and filter the todos
     const filteredTodos = state.todos.filter((todo) =>
       todo.title.toLowerCase().includes(normalizedSearchTerm) ||
       todo.content.toLowerCase().includes(normalizedSearchTerm)
     );
-
-    const filteredDone = state.done.filter((todo) =>
-      todo.title.toLowerCase().includes(normalizedSearchTerm) ||
-      todo.content.toLowerCase().includes(normalizedSearchTerm)
-    );
-
-    return { ...state, todos: filteredTodos, done: filteredDone };
+  
+    return { ...state, filteredTodos, isSearchActive: true };
   }),
   
-
+  
 }),{
   name:"storage"
 })

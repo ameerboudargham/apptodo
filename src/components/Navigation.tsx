@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTodoStore } from '../store/Todo';
 
 function Navigation() {
@@ -27,6 +27,42 @@ function Navigation() {
       content: '',
       completed:false,
     });
+    
+  };
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      handleSearch();
+    }, 300); // Adjust the delay as needed
+
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
+
+  const handleSearch = () => {
+    // Fetch all todos from the store
+    const allTodos = useTodoStore.getState().todos;
+
+    // Perform the search or reset todos
+    if (searchTerm === '') {
+      // If the search term is empty, reset the todos to their original state
+      useTodoStore.setState((state) => ({
+        ...state,
+        todos: allTodos,
+      }));
+    } else {
+      // If there's a search term, filter the todos based on it
+      const filteredTodos = allTodos.filter((todo) =>
+        todo.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      // Update the todos in the store with the filtered results
+      useTodoStore.setState((state) => ({
+        ...state,
+        todos: filteredTodos,
+      }));
+    }
   };
 
   const handleInputChange = (e:any) => {
@@ -54,19 +90,16 @@ function Navigation() {
     
     closeModal();
   };
-  function handleSearch(e:any){
-    const searchTerm = e.target.value;
-    searchTodos(searchTerm);
-  }
-  
-
+ 
   return (
     <div className='flex gap-2 mt-5'>
       <div className="add w-1/4 bg-yellow-700 rounded-2xl">
         <h1 onClick={openModal} className='cursor-pointer text-5xl'>+</h1>
       </div>
       <div className="search w-3/4">
-        <input className='p-4 w-full rounded-2xl indent-3' type="text" placeholder='Search...' onChange={handleSearch} />
+        <input className='p-4 w-full rounded-2xl indent-3' type="text" placeholder='Search...' 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
       {/* Modal */}
